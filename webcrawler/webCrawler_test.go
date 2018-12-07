@@ -106,76 +106,60 @@ func Test_fetchHttpFromUrl(t *testing.T) {
 	}
 }
 
-func Test_extractHttpHyperlinks(t *testing.T) {
+func Test_extractRelativeURLs(t *testing.T) {
 	type args struct {
 		html []byte
 	}
 	tests := []struct {
 		name string
 		args args
-		want [][]byte
+		want []string
 	}{
 		{
-			"Simple html a tag",
+			"simple html a tag",
+			args{[]byte(`<a href="/blog">Blog</a>`)},
+			[]string{"/blog"},
+		},
+		{
+			"html a tag with subfolder",
+			args{[]byte(`<a href="/static/images">Blog</a>`)},
+			[]string{"/static/images"},
+		},
+		{
+			"html a tag with protocol",
 			args{[]byte(`<a href="https://www.example.com">Example</a>`)},
-			[][]byte{[]byte("https://www.example.com")},
+			[]string{},
 		},
 		{
-			"Multiple html a tags",
-			args{[]byte(`<a href="https://www.example.com"">Example</a>` +
-				`<a href="https://www.monzo.com">Monzo</a>`)},
-			[][]byte{[]byte("https://www.example.com"), []byte("https://www.monzo.com")},
-		},
-		{
-			"html a tag with spaces",
-			args{[]byte(`<   a href  = "https://www.example.com">Example</a>`)},
-			[][]byte{[]byte("https://www.example.com")},
-		},
-		{
-			"html a tag with spaces in href url",
-			args{[]byte(`<a href="   https://www.example.com">Example</a> `)},
-			[][]byte{[]byte("https://www.example.com")},
+			"multiple html a tags",
+			args{[]byte(`<a href="/blog"></a><a href="/about"></a>`)},
+			[]string{"/blog", "/about"},
 		},
 		{
 			"html a tag with more attributes",
-			args{[]byte(`<a name="example" charset="UTF-8" href="https://www.example.com">Example</a>`)},
-			[][]byte{[]byte("https://www.example.com")},
+			args{[]byte(`<a name="blog" charset="UTF-8" href="/blog">Blog</a>`)},
+			[]string{"/blog"},
 		},
 		{
-			"html a tag with local url",
-			args{[]byte(`<a href ="/home.html`)},
-			[][]byte{},
+			"html a tag to a local file",
+			args{[]byte(`<a href ="/style.css`)},
+			[]string{},
 		},
 		{
 			"href with url only",
-			args{[]byte(`href="https://www.example.com"`)},
-			[][]byte{[]byte("https://www.example.com")},
-		},
-		{
-			"href with url with http protocol",
-			args{[]byte(`href="http://www.example.com"`)},
-			[][]byte{[]byte("http://www.example.com")},
-		},
-		{
-			"href with url with https protocol",
-			args{[]byte(`href="https://www.example.com"`)},
-			[][]byte{[]byte("https://www.example.com")},
-		},
-		{
-			"href with url with file protocol",
-			args{[]byte(`href="file://www.example.com"`)},
-			[][]byte{},
+			args{[]byte(`href="/blog"`)},
+			[]string{"/blog"},
 		},
 		{
 			"href with url with no protocol",
 			args{[]byte(`href="www.example.com"`)},
-			[][]byte{},
+			[]string{},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := extractHttpHyperlinks(tt.args.html); !reflect.DeepEqual(got, tt.want) {
+			if got := extractRelativeURLs(tt.args.html); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("\ngot  %v\nwant %v", got, tt.want)
 			}
 		})
