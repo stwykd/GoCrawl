@@ -57,16 +57,88 @@ var exampleComHtml = `<!doctype html>
 </html>
 `
 
-func TestWebCrawler_WebCrawl(t *testing.T) {
+func TestNewWebCrawler(t *testing.T) {
+	type args struct {
+		seed string
+	}
 	tests := []struct {
-		name string
-		w    *WebCrawler
+		name    string
+		args    args
+		want    *WebCrawler
+		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			"construct webcrawler with valid seed",
+			args{"https://example.com"},
+			&WebCrawler{"https://example.com"},
+			false,
+		},
+		{
+			"construct webcrawler with seed with invalid seed",
+			args{"xyz"},
+			&WebCrawler{},
+			true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tt.w.WebCrawl()
+			got, err := NewWebCrawler(tt.args.seed)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("NewWebCrawler() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("NewWebCrawler() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_isUrlValid(t *testing.T) {
+	type args struct {
+		url string
+	}
+	tests := []struct {
+		name string
+		args args
+		want bool
+	}{
+		{
+			"valid .com url",
+			args{"https://example.com"},
+			true,
+		},
+		{
+			"valid .it url",
+			args{"https://example.it"},
+			true,
+		},
+		{
+			"valid .uk url",
+			args{"https://example.ac.uk"},
+			true,
+		},
+		{
+			"url with no protocol",
+			args{"example.com"},
+			false,
+		},
+		{
+			"url with incomplete protocol",
+			args{"http:/example.com"},
+			false,
+		},
+		{
+			"invalid url",
+			args{"xyz"},
+			false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := isUrlValid(tt.args.url); got != tt.want {
+				t.Errorf("isUrlValid() = %v, want %v", got, tt.want)
+			}
 		})
 	}
 }
@@ -81,13 +153,13 @@ func Test_fetchHttpFromUrl(t *testing.T) {
 		want    []byte
 		wantErr bool
 	}{
-		{	"Fetch example.com",
+		{"Fetch example.com",
 			args{"https://example.com"},
 			[]byte(exampleComHtml),
 			false,
 		},
-		{	"Fetch invalid url to get error",
-			args{"https://www.monzo.com/"},
+		{"Fetch invalid url to get error",
+			args{"xyz"},
 			[]byte{},
 			true,
 		},
@@ -162,6 +234,20 @@ func Test_extractRelativeURLs(t *testing.T) {
 			if got := extractRelativeURLs(tt.args.html); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("\ngot  %v\nwant %v", got, tt.want)
 			}
+		})
+	}
+}
+
+func TestWebCrawler_PrintMap(t *testing.T) {
+	tests := []struct {
+		name string
+		wc   *WebCrawler
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.wc.PrintMap()
 		})
 	}
 }

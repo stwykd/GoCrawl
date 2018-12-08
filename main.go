@@ -2,31 +2,27 @@ package main
 
 import (
 	"os"
-	"strconv"
 	"sync"
 	"webCrawler/webcrawler"
 )
 
-// $ go run main.go seed numCrawlers
-// if `seed` and `numCrawlers` are both not specified, `seed` will be set to "https://monzo.com"
-// and `numCrawlers` will be se to 3
+// $ go run main.go seed
+// if `seed` is both not specified, it will be set to "https://monzo.com"
 func main() {
-	var seed, numCrawlers = "https://monzo.com", 3
-	if len(os.Args) == 3 {
+	var seed = "https://monzo.com"
+	if len(os.Args) == 2 {
 		seed = os.Args[1]
-		n, err := strconv.Atoi(os.Args[2])
-		if err != nil {
-			panic(err)
-		}
-		numCrawlers = n
 	}
 
-	wc := webcrawler.NewWebCrawler(seed)
+	wc, err := webcrawler.NewWebCrawler(seed); if err != nil {
+		panic(err)
+	}
 	var wg sync.WaitGroup
+	numCrawlers := 50 // need at least two go routines for WebCrawl() as it reads and writes to the same channel
 	wg.Add(numCrawlers)
 	for i := 0; i < numCrawlers; i++ {
 		go wc.WebCrawl(&wg)
 	}
-
+	wg.Wait()
 	wc.PrintMap()
 }

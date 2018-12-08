@@ -1,27 +1,39 @@
 package webcrawler
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"regexp"
 	"sync"
+	"time"
 )
 
 var crawled = make(map[string]bool) // custom set using map for quick look-up
-var toCrawl = make(chan string, 32)
+var toCrawl = make(chan string, 300)
+var mutex = sync.Mutex{}
+
 
 type WebCrawler struct {
 	seed string
 }
 
-func NewWebCrawler(seed string) *WebCrawler {
-	if seed == "" {
-		return nil
+func NewWebCrawler(seed string) (*WebCrawler, error) {
+	if !isUrlValid(seed) {
+		return &WebCrawler{}, errors.New("invalid seed url")
 	}
 	wc := WebCrawler{seed:seed}
-	return &wc
+	toCrawl <- seed
+	return &wc, nil
+}
+
+func isUrlValid(url string) bool {
+	 b, err := regexp.MatchString(`^http[s]?:[/][/][www.]?[\S]+[.][\S]+[.uk]?$`, url); if err != nil {
+		panic(err)
+	 }
+	return b
 }
 
 // WebCrawl fetches all hyperlinks within the seed url, it will crawl all pages within
@@ -44,20 +56,25 @@ func (wc *WebCrawler) WebCrawl(wg *sync.WaitGroup) {
 				urls := extractRelativeURLs(html)
 
 				// add extracted urls to `toCrawl`
-				for _, l := range urls {
-					url := wc.seed+string(l)
-					if !crawled[url] {
-						toCrawl <- url
-						crawled[url] = true
+				for _, u := range urls {
+					u := wc.seed+string(u)
+
+					mutex.Lock()
+					if !crawled[u] {
+						toCrawl <- u
+						crawled[u] = true
+						fmt.Printf("%v added to channel \n", u)
+						fmt.Printf("crawled %v urls, %v left to crawl \n", len(crawled), len(toCrawl))
 					}
+					mutex.Unlock()
 				}
 			} else {
-				log.Print("the channel `toCrawl` is closed")
+				log.Println("the channel `toCrawl` has been closed")
 				return
 			}
-		default:
-			log.Print("no more urls to crawl")
-			return
+			case <- time.After(4*time.Second):
+				log.Println("Timeout reached")
+				return
 		}
 	}
 }
