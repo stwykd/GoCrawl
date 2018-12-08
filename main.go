@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"sync"
 	"webCrawler/webcrawler"
@@ -24,5 +25,5 @@ func main() {
 		go wc.WebCrawl(&wg)
 	}
 	wg.Wait()
-	wc.PrintMap()
+	fmt.Println(wc.GetCrawledURLs())
 }

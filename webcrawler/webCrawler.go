@@ -12,7 +12,7 @@ import (
 )
 
 var crawled = make(map[string]bool) // custom set using map for quick look-up
-var toCrawl = make(chan string, 300)
+var toCrawl = make(chan string, 1000)
 var mutex = sync.Mutex{}
 
 
@@ -73,14 +73,10 @@ func (wc *WebCrawler) WebCrawl(wg *sync.WaitGroup) {
 				return
 			}
 			case <- time.After(4*time.Second):
-				log.Println("Timeout reached")
+				log.Println("Timeout reached, closing go routine")
 				return
 		}
 	}
-}
-
-func (wc *WebCrawler) PrintMap() {
-	fmt.Println(crawled)
 }
 
 func fetchHttpFromUrl(url string) ([]byte, error) {
@@ -129,3 +125,11 @@ func extractRelativeURLs(html []byte) []string {
 //
 //	return links
 //}
+
+func (wc *WebCrawler) GetCrawledURLs() []string {
+	urls := make([]string, 0, len(crawled))
+	for k := range crawled {
+		urls = append(urls, k)
+	}
+	return urls
+}
