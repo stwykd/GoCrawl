@@ -1,15 +1,16 @@
 package webcrawler
 
 import (
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"regexp"
+	"sync"
 )
 
 var crawled = make(map[string]bool) // custom set using map for quick look-up
-var toCrawl = make(chan string)
-
+var toCrawl = make(chan string, 32)
 
 type WebCrawler struct {
 	seed string
@@ -26,7 +27,8 @@ func NewWebCrawler(seed string) *WebCrawler {
 // WebCrawl fetches all hyperlinks within the seed url, it will crawl all pages within
 // the domain of the url without following external links Given a URL, and print a simple
 // site map, showing the links between pages.
-func (wc *WebCrawler) WebCrawl() {
+func (wc *WebCrawler) WebCrawl(wg *sync.WaitGroup) {
+	defer wg.Done()
 	for {
 		select {
 		// read next url from to be crawled
@@ -58,6 +60,10 @@ func (wc *WebCrawler) WebCrawl() {
 			return
 		}
 	}
+}
+
+func (wc *WebCrawler) PrintMap() {
+	fmt.Println(crawled)
 }
 
 func fetchHttpFromUrl(url string) ([]byte, error) {

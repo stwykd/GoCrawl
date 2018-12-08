@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"strconv"
+	"sync"
 	"webCrawler/webcrawler"
 )
 
@@ -20,8 +21,12 @@ func main() {
 		numCrawlers = n
 	}
 
-	wc := webcrawler.WebCrawler{Seed: seed}
+	wc := webcrawler.NewWebCrawler(seed)
+	var wg sync.WaitGroup
+	wg.Add(numCrawlers)
 	for i := 0; i < numCrawlers; i++ {
-		go wc.WebCrawl()
+		go wc.WebCrawl(&wg)
 	}
+
+	wc.PrintMap()
 }
