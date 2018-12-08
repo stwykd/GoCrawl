@@ -26,4 +26,6 @@ func main() {
 	}
 	wg.Wait()
 	fmt.Println(wc.GetCrawledURLs())
+
+	
 }

@@ -163,6 +163,7 @@ func TestWebCrawler_WebCrawl(t *testing.T) {
 	got := wc.GetCrawledURLs()
 	sort.Strings(got)
 	sort.Strings(want)
+
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("\nWebCrawl() crawled:\n%v\nbut was expected to crawl:\n%v\n", got, want)
 	}

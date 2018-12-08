@@ -2,7 +2,6 @@ package webcrawler
 
 import (
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -63,8 +62,8 @@ func (wc *WebCrawler) WebCrawl(wg *sync.WaitGroup) {
 					if !crawled[u] {
 						toCrawl <- u
 						crawled[u] = true
-						fmt.Printf("%v added to channel \n", u)
-						fmt.Printf("crawled %v urls, %v left to crawl \n", len(crawled), len(toCrawl))
+						log.Printf("%v added to channel \n", u)
+						log.Printf("crawled %v urls, %v left to crawl \n", len(crawled), len(toCrawl))
 					}
 					mutex.Unlock()
 				}
