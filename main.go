@@ -8,7 +8,7 @@ import (
 )
 
 // $ go run main.go seed
-// if `seed` is both not specified, it will be set to "https://monzo.com"
+// if `seed` is not specified, it will be set to "https://monzo.com"
 func main() {
 	var seed = "https://monzo.com"
 	if len(os.Args) == 2 {
