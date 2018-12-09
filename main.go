@@ -7,7 +7,7 @@ import (
 
 // $ go run main.go seed
 // If `seed` is not specified, `seed` will be set to "https://monzo.com"
-// Make sure `seed` has an http protocol. monzo.com will not work
+// Make sure `seed` has an http protocol. "monzo.com" will not work
 func main() {
 	var seed = "https://monzo.com"
 	if len(os.Args) == 2 {
