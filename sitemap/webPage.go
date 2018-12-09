@@ -18,15 +18,15 @@ type webPage struct {
 //	return ks
 //}
 
-func (w *webPage) string(tabs int) string {
+func (w *webPage) sitemapFromWebPage(tabs int) string {
 	sb := strings.Builder{}
-	sb.WriteString(strings.Repeat("\t", tabs)+w.url+"\n")
+	sb.WriteString(strings.Repeat("\t", tabs) + w.url + "\n")
 	for _, wp := range w.subPages {
-			sb.WriteString(wp.string(tabs+1))
+		sb.WriteString(wp.sitemapFromWebPage(tabs + 1))
 	}
 	return sb.String()
 }
 
 func (w *webPage) String() string {
-	return "\n\n\n"+w.string(1)
+	return w.sitemapFromWebPage(1)
 }

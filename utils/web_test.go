@@ -106,7 +106,7 @@ func Test_IsUrlValid(t *testing.T) {
 	}
 }
 
-func Test_FetchHttpFromUrl(t *testing.T) {
+func Test_FetchHtmlFromUrl(t *testing.T) {
 	type args struct {
 		url string
 	}
@@ -129,7 +129,7 @@ func Test_FetchHttpFromUrl(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := FetchHttpFromUrl(tt.args.url)
+			got, err := FetchHtmlFromUrl(tt.args.url)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("\ngot  %v\nwant %v", got, tt.want)
 				return

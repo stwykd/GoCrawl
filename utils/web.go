@@ -1,3 +1,4 @@
+// Package utils provides helper methods used throughout the project for common web related tasks
 package utils
 
 import (
@@ -6,6 +7,8 @@ import (
 	"regexp"
 )
 
+// IsUrlValid checks if a url is valid. Valid urls use the http protocol, may have a domain starting
+// with www, have a domain name comprised of letters and numbers, and ends with a top-level domain
 func IsUrlValid(url string) bool {
 	b, err := regexp.MatchString(`^http[s]?:[/][/][www.]?[\S]+[.][\S]+[.uk]?$`, url)
 	if err != nil {
@@ -14,7 +17,9 @@ func IsUrlValid(url string) bool {
 	return b
 }
 
-func FetchHttpFromUrl(url string) ([]byte, error) {
+// FetchHtmlFromUrl fetches the html code from a url.
+// An error is returned if the http.Get() function fails
+func FetchHtmlFromUrl(url string) ([]byte, error) {
 	resp, err := http.Get(url)
 	if err != nil {
 		return make([]byte, 0), err
@@ -32,6 +37,7 @@ func FetchHttpFromUrl(url string) ([]byte, error) {
 	return body, nil
 }
 
+// ExtractRelativeURLs extracts all relative URLs from html code
 func ExtractRelativeURLs(html []byte) []string {
 	r := regexp.MustCompile(`href="(/[^".]+)"`)
 	submatches := r.FindAllStringSubmatch(string(html), -1)
@@ -63,6 +69,7 @@ func ExtractRelativeURLs(html []byte) []string {
 //	return links
 //}
 
+// RemoveHttpFromURL removes the http:// or https:// from the beginning of an url
 func RemoveHttpFromURL(url string) string {
-	return regexp.MustCompile(`http[s]?://([\S])`).ReplaceAllString(url, "${1}")
+	return regexp.MustCompile(`^http[s]?://([\S]+)$`).ReplaceAllString(url, "${1}")
 }
