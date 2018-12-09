@@ -34,7 +34,7 @@ func (wc *webCrawler) WebCrawl(wg *sync.WaitGroup) {
 	defer wg.Done()
 	for {
 		select {
-		// read next url from to be crawled
+		// read the next url to be crawled from `toCrawl`
 		case url, ok := <-toCrawl:
 			if ok {
 				// fetch http from the next url in `toCrawl`
@@ -43,10 +43,10 @@ func (wc *webCrawler) WebCrawl(wg *sync.WaitGroup) {
 					panic(err)
 				}
 
-				// get all relative urls within the html
+				// get all relative urls from the fetched html
 				urls := utils.ExtractRelativeURLs(html)
 
-				// add extracted urls to `toCrawl`
+				// add the extracted urls to `toCrawl`
 				for _, u := range urls {
 					u := wc.seed + string(u)
 
@@ -60,11 +60,11 @@ func (wc *webCrawler) WebCrawl(wg *sync.WaitGroup) {
 					mutex.Unlock()
 				}
 			} else {
-				log.Println("the channel `toCrawl` has been closed")
+				log.Println("the channel `toCrawl` has been closed, killing go routine")
 				return
 			}
 		case <-time.After(4 * time.Second):
-			log.Println("Timeout reached, closing go routine")
+			log.Println("Timeout reached, killing go routine")
 			return
 		}
 	}

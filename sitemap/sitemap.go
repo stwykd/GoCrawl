@@ -2,7 +2,6 @@ package sitemap
 
 import (
 	"errors"
-	"fmt"
 	"strings"
 	"webCrawler/utils"
 )
@@ -26,7 +25,8 @@ func NewSitemap(domain string, urls []string) (*sitemap, error) {
 		}
 
 		curr := s.domain
-		for _, page := range splitUrl[1:] {
+		splitUrl = splitUrl[1:len(splitUrl)-1] // remove domain name and trailing whitespace
+		for _, page := range splitUrl {
 			if _, ok := curr.subPages[page]; !ok {
 				curr.subPages[page] = webPage{page, make(map[string]webPage)}
 			}
@@ -38,7 +38,5 @@ func NewSitemap(domain string, urls []string) (*sitemap, error) {
 }
 
 func (s *sitemap) String() string {
-	b := strings.Builder{}
-	b.WriteString(s.domain.url)
-	return fmt.Sprint(b.String())
+	return s.domain.String()
 }
