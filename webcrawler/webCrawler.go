@@ -13,7 +13,7 @@ import (
 )
 
 var crawled = make(map[string]bool) // custom set using map for quick look-up
-var toCrawl = make(chan string, 1000)
+var toCrawl = make(chan string, 100000)
 var mutex = sync.Mutex{}
 
 type webCrawler struct {
