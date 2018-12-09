@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"net"
 	"sync"
 	"time"
 	"webCrawler/sitemap"
@@ -13,7 +14,7 @@ import (
 )
 
 var crawled = make(map[string]bool) // custom set using map for quick look-up
-var toCrawl = make(chan string, 100000)
+var toCrawl = make(chan string, 1000000)
 var mutex = sync.Mutex{}
 
 type webCrawler struct {
@@ -44,6 +45,10 @@ func (wc *webCrawler) WebCrawl(wg *sync.WaitGroup) {
 				// fetch html code from the next url in `toCrawl`
 				html, err := utils.FetchHtmlFromUrl(url)
 				if err != nil {
+					if err.(net.Error).Timeout() {
+						log.Println(err)
+						continue
+					}
 					panic(err)
 				}
 
