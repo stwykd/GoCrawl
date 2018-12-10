@@ -1,4 +1,4 @@
-// package webcrawler implements a concurrent web crawler that, starting from a seed url,
+// Package webcrawler implements a concurrent web crawler that, starting from a seed url,
 // discovers all pages within the same domain of the seed url
 package webcrawler
 
